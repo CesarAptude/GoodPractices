@@ -3,45 +3,70 @@ A guide for the best practices for Aptude team
 
 # Table of Contents
 
+  - [Explicit code](#explicit-code)
   - [Iterating over Sequences and Mappings](#iterating-over-sequences-and-mappings)
-      - [Anti-pattern](#anti-pattern)
-      - [Best practice](#best-practice)
   - [Use enumerate when you need the element and its index at the same time](#use-enumerate-when-you-need-the-element-and-its-index-at-the-same-time)
-      - [Bad practice](#bad-practice)
-      - [Best practice](#best-practice-1)
   - [Use zip to iterate over pairs of lists](#use-zip-to-iterate-over-pairs-of-lists)
-      - [Anti-pattern](#anti-pattern-1)
-      - [Best practice](#best-practice-2)
+  - [Access a Dictionary Element](#access-a-dictionary-element)
+  - [Short Ways to Manipulate Lists](#short-ways-to-manipulate-lists)
+  - [Short Ways to Manipulate Lists](#short-ways-to-manipulate-lists)
+  - [Filtering a list](#filtering-a-list)
+  - [Modifying the values in a list](#modifying-the-values-in-a-list)
   - [Comparing to Zero](#comparing-to-zero)
-      - [Anti-pattern](#anti-pattern-2)
-      - [Best practice](#best-practice-3)
   - [Use explicit variable names](#use-explicit-variable-names)
-      - [Anti-pattern](#anti-pattern-3)
-      - [Best practice](#best-practice-4)
   - [Using non-explicit variable names](#using-non-explicit-variable-names)
-      - [Anti-pattern](#anti-pattern-5)
-      - [Best practice](#best-practice-6)
+  - [Line Continuations](#line-continuations)
   - [Use "set" to check if an element is contained in a (large) list](#use-set-to-check-if-an-element-is-contained-in-a-large-list)
-      - [Anti-pattern](#anti-pattern-6)
-      - [Best practice](#best-practice-7)
   - [Passing mutable default arguments to functions (i.e. an empty list)](#passing-mutable-default-arguments-to-functions-ie-an-empty-list)
-      - [Anti-pattern](#anti-pattern-7)
-      - [Best practice](#best-practice-8)
   - [Using stacked and nested if statements](#using-stacked-and-nested-if-statements)
-      - [Bad practice](#bad-practice-1)
-      - [Best practice](#best-practice-9)
   - [Use get() to return default values from a dictionary](#use-get-to-return-default-values-from-a-dictionary)
-      - [Bad practice](#bad-practice-2)
-      - [Best practice](#best-practice-10)
   - [Use try/except blocks that handle exceptions meaningfully](#use-tryexcept-blocks-that-handle-exceptions-meaningfully)
-      - [Bad practice](#bad-practice-3)
-      - [Best practice](#best-practice-11)
   - [from module import *](#from-module-import-)
-      - [Bad practice](#bad-practice-4)
-      - [Best practice](#best-practice-12)
   - [Over-engineering everything](#over-engineering-everything)
-      - [Bad practice](#bad-practice-5)
-      - [Best practice: a simple function is enough](#best-practice-a-simple-function-is-enough)
+
+
+## Explicit code
+
+While any kind of black magic is possible with Python, the most explicit and straightforward manner is preferred.
+
+#### Anti-pattern
+
+        def make_complex(*args):
+            x, y = args
+            return dict(**locals())
+
+#### Best practice
+
+        def make_complex(x, y):
+            return {'x': x, 'y': y}
+
+In the good code above, x and y are explicitly received from the caller, and an explicit dictionary is returned. The developer using this function knows exactly what to do by reading the first and last lines, which is not the case with the bad example.
+
+## One statement per line
+
+While some compound statements such as list comprehensions are allowed and appreciated for their brevity and their expressiveness, it is bad practice to have two disjointed statements on the same line of code.
+
+#### Anti-pattern
+
+        print('one'); print('two')
+
+        if x == 1: print('one')
+
+        if <complex comparison> and <other complex comparison>:
+            # do something
+
+#### Best practice
+
+        print('one')
+        print('two')
+
+        if x == 1:
+            print('one')
+
+        cond1 = <complex comparison>
+        cond2 = <other complex comparison>
+        if cond1 and cond2:
+            # do something
 
 ## Iterating over Sequences and Mappings
 
@@ -99,6 +124,131 @@ A better way to iterate over a sequence
     for letter, id_ in zip(list_of_letters, list_of_ids):
         process_letters(letter, id_)
 
+## Access a Dictionary Element
+
+Don’t use the __dict.has_key()__ method. Instead, use ```x in d``` syntax, or pass a default argument to __dict.get()__.
+
+#### Anti-pattern
+
+        d = {'hello': 'world'}
+        if d.has_key('hello'):
+            print(d['hello'])    # prints 'world'
+        else:
+            print('default_value')
+
+#### Best practice
+
+        d = {'hello': 'world'}
+
+        print(d.get('hello', 'default_value')) # prints 'world'
+        print(d.get('thingy', 'default_value')) # prints 'default_value'
+
+        # Or:
+        if 'hello' in d:
+            print(d['hello'])
+
+## Short Ways to Manipulate Lists
+
+List comprehensions provides a powerful, concise way to work with lists.
+
+Generator expressions follows almost the same syntax as list comprehensions but return a generator instead of a list.
+
+Creating a new list requires more work and uses more memory. If you are just going to loop through the new list, prefer using an iterator instead.
+
+#### Anti-pattern
+
+        # needlessly allocates a list of all (gpa, name) entires in memory
+        valedictorian = max([(student.gpa, student.name) for student in graduates])
+
+#### Best practice
+
+        valedictorian = max((student.gpa, student.name) for student in graduates)
+
+Use list comprehensions when you really need to create a second list, for example if you need to use the result multiple times.
+
+If your logic is too complicated for a short list comprehension or generator expression, consider using a generator function instead of returning a list.
+
+#### Best practice
+
+        def make_batches(items, batch_size):
+            """
+            >>> list(make_batches([1, 2, 3, 4, 5], batch_size=3))
+            [[1, 2, 3], [4, 5]]
+            """
+            current_batch = []
+            for item in items:
+                current_batch.append(item)
+                if len(current_batch) == batch_size:
+                    yield current_batch
+                    current_batch = []
+            yield current_batch
+
+Never use a list comprehension just for its side effects.
+
+#### Anti-pattern
+
+        [print(x) for x in sequence]
+
+#### Best practice
+
+        for x in sequence:
+            print(x)
+
+## Filtering a list
+
+#### Anti-pattern
+Never remove items from a list while you are iterating through it.
+
+        # Filter elements greater than 4
+        a = [3, 4, 5]
+        for i in a:
+            if i > 4:
+                a.remove(i)
+
+Don’t make multiple passes through the list.
+
+        while i in a:
+            a.remove(i)
+
+#### Best practice
+
+Use a list comprehension or generator expression.
+
+        # comprehensions create a new list object
+        filtered_values = [value for value in sequence if value != x]
+
+        # generators don't create another list
+        filtered_values = (value for value in sequence if value != x)
+
+### Possible side effects of modifying the original list
+Modifying the original list can be risky if there are other variables referencing it. But you can use slice assignment if you really want to do that.
+
+        # replace the contents of the original list
+        sequence[::] = [value for value in sequence if value != x]
+
+## Modifying the values in a list
+
+#### Anti-pattern
+Remember that assignment never creates a new object. If two or more variables refer to the same list, changing one of them changes them all.
+
+        # Add three to all list members.
+        a = [3, 4, 5]
+        b = a                     # a and b refer to the same list object
+
+        for i in range(len(a)):
+            a[i] += 3             # b[i] also changes
+
+#### Best practice
+It’s safer to create a new list object and leave the original alone.
+
+        a = [3, 4, 5]
+        b = a
+
+        # assign the variable "a" to a new list without changing "b"
+        a = [i + 3 for i in a]
+
+Use __enumerate()__ keep a count of your place in the list.
+
 ## Comparing to Zero
 When you have numeric data, and you need to check if the numbers are equal to zero, you can but don’t have to use the comparison operators == and !=:
 
@@ -113,6 +263,7 @@ When you have numeric data, and you need to check if the numbers are equal to ze
     2
     3
     4
+
 The Pythonic way is to exploit the fact that zero is interpreted as False in a Boolean context, while all other numbers are considered as True:
 
     >>> bool(0)
@@ -120,6 +271,7 @@ The Pythonic way is to exploit the fact that zero is interpreted as False in a B
     >>> bool(-1), bool(1), bool(20), bool(28.4)
     (True, True, True, True)
 Having this in mind you can just use if item instead of if item != 0:
+
 #### Best practice
     >>> for item in x:
     ...     if item:
@@ -165,6 +317,30 @@ f.close() never executes which leads to memory issues
         f.write("some data")
         v = d["bar"]
 python still executes f.close() even if the KeyError exception occurs
+
+## Line Continuations
+
+When a logical line of code is longer than the accepted limit, you need to split it over multiple physical lines. The Python interpreter will join consecutive lines if the last character of the line is a backslash. This is helpful in some cases, but should usually be avoided because of its fragility: a white space added to the end of the line, after the backslash, will break the code and may have unexpected results.
+
+A better solution is to use parentheses around your elements. Left with an unclosed parenthesis on an end-of-line, the Python interpreter will join the next line until the parentheses are closed. The same behavior holds for curly and square braces.
+
+        my_very_big_string = """For a long time I used to go to bed early. Sometimes, \
+        when I had put out my candle, my eyes would close so quickly that I had not even \
+        time to say “I’m going to sleep.”"""
+
+        from some.deep.module.inside.a.module import a_nice_function, another_nice_function, \
+        yet_another_nice_function
+
+        my_very_big_string = (
+            "For a long time I used to go to bed early. Sometimes, "
+            "when I had put out my candle, my eyes would close so quickly "
+            "that I had not even time to say “I’m going to sleep.”"
+        )
+
+        from some.deep.module.inside.a.module import (
+            a_nice_function, another_nice_function, yet_another_nice_function)
+
+However, more often than not, having to split a long logical line is a sign that you are trying to do too many things at the same time, which may hinder readability.
 
 ## Use "set" to check if an element is contained in a (large) list
 
