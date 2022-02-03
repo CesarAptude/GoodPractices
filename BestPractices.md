@@ -9,12 +9,12 @@ A guide for the best practices for Aptude team
   - [Use zip to iterate over pairs of lists](#use-zip-to-iterate-over-pairs-of-lists)
   - [Access a Dictionary Element](#access-a-dictionary-element)
   - [Short Ways to Manipulate Lists](#short-ways-to-manipulate-lists)
-  - [Short Ways to Manipulate Lists](#short-ways-to-manipulate-lists)
   - [Filtering a list](#filtering-a-list)
   - [Modifying the values in a list](#modifying-the-values-in-a-list)
   - [Comparing to Zero](#comparing-to-zero)
   - [Use explicit variable names](#use-explicit-variable-names)
   - [Using non-explicit variable names](#using-non-explicit-variable-names)
+  - [Read a file in Python](#read-a-file-in-python)
   - [Line Continuations](#line-continuations)
   - [Use "set" to check if an element is contained in a (large) list](#use-set-to-check-if-an-element-is-contained-in-a-large-list)
   - [Passing mutable default arguments to functions (i.e. an empty list)](#passing-mutable-default-arguments-to-functions-ie-an-empty-list)
@@ -296,6 +296,41 @@ Your variables should always be descriptive to provide a minumum of context
 
     features = data[["f1", "f2", "f3"]]
     target = data["target"]
+
+## Read a file in Python
+
+### 1. Using open() function
+
+A simple solution is to open the file in reading mode ```'r'``` using the built-in ```open()``` function. Since the mode in which the file is opened defaults to ```'r'```, you can skip it.
+
+        f = open('file.txt')
+        text = f.read()
+        print(text)
+        f.close()
+
+The above syntax requires you to explicitly close the file using the close() function. This is not considered Pythonic, and you should use the with keyword, which automatically closes the file once it is done with, even when an exception is raised. Here’s an equivalent code using the with statement:
+
+        with open('file.txt') as f:
+            text = f.read()
+            print(text)
+
+### 2. Using pathlib module
+
+You can also use the pathlib module with Python 3.4. The Path.read_text() function opens the file in text mode, reads it, and close the file.
+
+        import pathlib
+        text = pathlib.Path('file.txt').read_text()
+        print(text)
+
+### 3. Using io module
+
+Finally, you can call the io.open() function, which is an alias for the built-in open() function.
+
+        import io
+        
+        with io.open("file.txt", mode='r', encoding='utf-8') as f:
+            text = f.read()
+            print(text)
 
 ## Using non-explicit variable names
 
