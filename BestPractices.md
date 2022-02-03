@@ -31,14 +31,14 @@ While any kind of black magic is possible with Python, the most explicit and str
 
 #### Anti-pattern
 
-        def make_complex(*args):
-            x, y = args
-            return dict(**locals())
+    def make_complex(*args):
+        x, y = args
+        return dict(**locals())
 
 #### Best practice
 
-        def make_complex(x, y):
-            return {'x': x, 'y': y}
+    def make_complex(x, y):
+        return {'x': x, 'y': y}
 
 In the good code above, x and y are explicitly received from the caller, and an explicit dictionary is returned. The developer using this function knows exactly what to do by reading the first and last lines, which is not the case with the bad example.
 
@@ -48,25 +48,25 @@ While some compound statements such as list comprehensions are allowed and appre
 
 #### Anti-pattern
 
-        print('one'); print('two')
+    print('one'); print('two')
 
-        if x == 1: print('one')
+    if x == 1: print('one')
 
-        if <complex comparison> and <other complex comparison>:
-            # do something
+    if <complex comparison> and <other complex comparison>:
+        # do something
 
 #### Best practice
 
+    print('one')
+    print('two')
+
+    if x == 1:
         print('one')
-        print('two')
 
-        if x == 1:
-            print('one')
-
-        cond1 = <complex comparison>
-        cond2 = <other complex comparison>
-        if cond1 and cond2:
-            # do something
+    cond1 = <complex comparison>
+    cond2 = <other complex comparison>
+    if cond1 and cond2:
+        # do something
 
 ## Iterating over Sequences and Mappings
 
@@ -130,22 +130,22 @@ Don’t use the __dict.has_key()__ method. Instead, use ```x in d``` syntax, or 
 
 #### Anti-pattern
 
-        d = {'hello': 'world'}
-        if d.has_key('hello'):
-            print(d['hello'])    # prints 'world'
-        else:
-            print('default_value')
+    d = {'hello': 'world'}
+    if d.has_key('hello'):
+        print(d['hello'])    # prints 'world'
+    else:
+        print('default_value')
 
 #### Best practice
 
-        d = {'hello': 'world'}
+    d = {'hello': 'world'}
 
-        print(d.get('hello', 'default_value')) # prints 'world'
-        print(d.get('thingy', 'default_value')) # prints 'default_value'
+    print(d.get('hello', 'default_value')) # prints 'world'
+    print(d.get('thingy', 'default_value')) # prints 'default_value'
 
-        # Or:
-        if 'hello' in d:
-            print(d['hello'])
+    # Or:
+    if 'hello' in d:
+        print(d['hello'])
 
 ## Short Ways to Manipulate Lists
 
@@ -157,12 +157,12 @@ Creating a new list requires more work and uses more memory. If you are just goi
 
 #### Anti-pattern
 
-        # needlessly allocates a list of all (gpa, name) entires in memory
-        valedictorian = max([(student.gpa, student.name) for student in graduates])
+    # needlessly allocates a list of all (gpa, name) entires in memory
+    valedictorian = max([(student.gpa, student.name) for student in graduates])
 
 #### Best practice
 
-        valedictorian = max((student.gpa, student.name) for student in graduates)
+    valedictorian = max((student.gpa, student.name) for student in graduates)
 
 Use list comprehensions when you really need to create a second list, for example if you need to use the result multiple times.
 
@@ -170,82 +170,82 @@ If your logic is too complicated for a short list comprehension or generator exp
 
 #### Best practice
 
-        def make_batches(items, batch_size):
-            """
-            >>> list(make_batches([1, 2, 3, 4, 5], batch_size=3))
-            [[1, 2, 3], [4, 5]]
-            """
-            current_batch = []
-            for item in items:
-                current_batch.append(item)
-                if len(current_batch) == batch_size:
-                    yield current_batch
-                    current_batch = []
-            yield current_batch
+    def make_batches(items, batch_size):
+        """
+        >>> list(make_batches([1, 2, 3, 4, 5], batch_size=3))
+        [[1, 2, 3], [4, 5]]
+        """
+        current_batch = []
+        for item in items:
+            current_batch.append(item)
+            if len(current_batch) == batch_size:
+                yield current_batch
+                current_batch = []
+        yield current_batch
 
 Never use a list comprehension just for its side effects.
 
 #### Anti-pattern
 
-        [print(x) for x in sequence]
+    [print(x) for x in sequence]
 
 #### Best practice
 
-        for x in sequence:
-            print(x)
+    for x in sequence:
+        print(x)
 
 ## Filtering a list
 
 #### Anti-pattern
 Never remove items from a list while you are iterating through it.
 
-        # Filter elements greater than 4
-        a = [3, 4, 5]
-        for i in a:
-            if i > 4:
-                a.remove(i)
+    # Filter elements greater than 4
+    a = [3, 4, 5]
+    for i in a:
+        if i > 4:
+            a.remove(i)
 
 Don’t make multiple passes through the list.
 
-        while i in a:
-            a.remove(i)
+    while i in a:
+        a.remove(i)
 
 #### Best practice
 
 Use a list comprehension or generator expression.
 
-        # comprehensions create a new list object
-        filtered_values = [value for value in sequence if value != x]
+    # comprehensions create a new list object
+    filtered_values = [value for value in sequence if value != x]
 
-        # generators don't create another list
-        filtered_values = (value for value in sequence if value != x)
+    # generators don't create another list
+    filtered_values = (value for value in sequence if value != x)
 
 ### Possible side effects of modifying the original list
 Modifying the original list can be risky if there are other variables referencing it. But you can use slice assignment if you really want to do that.
 
-        # replace the contents of the original list
-        sequence[::] = [value for value in sequence if value != x]
+    # replace the contents of the original list
+    sequence[::] = [value for value in sequence if value != x]
 
 ## Modifying the values in a list
 
 #### Anti-pattern
 Remember that assignment never creates a new object. If two or more variables refer to the same list, changing one of them changes them all.
 
-        # Add three to all list members.
-        a = [3, 4, 5]
-        b = a                     # a and b refer to the same list object
+    # Add three to all list members.
+    a = [3, 4, 5]
+    b = a                     # a and b refer to the same list object
 
-        for i in range(len(a)):
-            a[i] += 3             # b[i] also changes
+    for i in range(len(a)):
+        a[i] += 3             # b[i] also changes
 
 #### Best practice
 It’s safer to create a new list object and leave the original alone.
 
-        a = [3, 4, 5]
-        b = a
+    a = [3, 4, 5]
+    b = a
 
-        # assign the variable "a" to a new list without changing "b"
-        a = [i + 3 for i in a]
+    # assign the variable "a" to a new list without changing "b"
+    a = [i + 3 for i in a]
 
 Use __enumerate()__ keep a count of your place in the list.
 
@@ -303,34 +303,34 @@ Your variables should always be descriptive to provide a minumum of context
 
 A simple solution is to open the file in reading mode ```'r'``` using the built-in ```open()``` function. Since the mode in which the file is opened defaults to ```'r'```, you can skip it.
 
-        f = open('file.txt')
-        text = f.read()
-        print(text)
-        f.close()
+    f = open('file.txt')
+    text = f.read()
+    print(text)
+    f.close()
 
 The above syntax requires you to explicitly close the file using the close() function. This is not considered Pythonic, and you should use the with keyword, which automatically closes the file once it is done with, even when an exception is raised. Here’s an equivalent code using the with statement:
 
-        with open('file.txt') as f:
-            text = f.read()
-            print(text)
+    with open('file.txt') as f:
+        text = f.read()
+        print(text)
 
 ### 2. Using pathlib module
 
 You can also use the pathlib module with Python 3.4. The Path.read_text() function opens the file in text mode, reads it, and close the file.
 
-        import pathlib
-        text = pathlib.Path('file.txt').read_text()
-        print(text)
+    import pathlib
+    text = pathlib.Path('file.txt').read_text()
+    print(text)
 
 ### 3. Using io module
 
 Finally, you can call the io.open() function, which is an alias for the built-in open() function.
 
-        import io
-        
-        with io.open("file.txt", mode='r', encoding='utf-8') as f:
-            text = f.read()
-            print(text)
+    import io
+    
+    with io.open("file.txt", mode='r', encoding='utf-8') as f:
+        text = f.read()
+        print(text)
 
 ## Using non-explicit variable names
 
@@ -342,6 +342,7 @@ d = {"foo": 1}
     f.write("some data")
 
     v = d["bar"] # KeyError
+
 f.close() never executes which leads to memory issues
 
     f.close()
@@ -351,6 +352,7 @@ f.close() never executes which leads to memory issues
     with open("./data.csv", "wb") as f:
         f.write("some data")
         v = d["bar"]
+
 python still executes f.close() even if the KeyError exception occurs
 
 ## Line Continuations
@@ -359,21 +361,21 @@ When a logical line of code is longer than the accepted limit, you need to split
 
 A better solution is to use parentheses around your elements. Left with an unclosed parenthesis on an end-of-line, the Python interpreter will join the next line until the parentheses are closed. The same behavior holds for curly and square braces.
 
-        my_very_big_string = """For a long time I used to go to bed early. Sometimes, \
-        when I had put out my candle, my eyes would close so quickly that I had not even \
-        time to say “I’m going to sleep.”"""
+    my_very_big_string = """For a long time I used to go to bed early. Sometimes, \
+    when I had put out my candle, my eyes would close so quickly that I had not even \
+    time to say “I’m going to sleep.”"""
 
-        from some.deep.module.inside.a.module import a_nice_function, another_nice_function, \
-        yet_another_nice_function
+    from some.deep.module.inside.a.module import a_nice_function, another_nice_function, \
+    yet_another_nice_function
 
-        my_very_big_string = (
-            "For a long time I used to go to bed early. Sometimes, "
-            "when I had put out my candle, my eyes would close so quickly "
-            "that I had not even time to say “I’m going to sleep.”"
-        )
+    my_very_big_string = (
+        "For a long time I used to go to bed early. Sometimes, "
+        "when I had put out my candle, my eyes would close so quickly "
+        "that I had not even time to say “I’m going to sleep.”"
+    )
 
-        from some.deep.module.inside.a.module import (
-            a_nice_function, another_nice_function, yet_another_nice_function)
+    from some.deep.module.inside.a.module import (
+        a_nice_function, another_nice_function, yet_another_nice_function)
 
 However, more often than not, having to split a long logical line is a sign that you are trying to do too many things at the same time, which may hinder readability.
 
