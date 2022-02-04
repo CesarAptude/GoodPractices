@@ -322,6 +322,15 @@ You can also use the pathlib module with Python 3.4. The Path.read_text() functi
     text = pathlib.Path('file.txt').read_text()
     print(text)
 
+Here other example
+
+    db = Path.home() / 'db'
+    CONFIG.update({
+        'PORT': '7505',
+        'path_to_db1': str(db/'db1.ora'),
+        'path_to_db2': str(db/'db2.ora'),
+    })
+
 ### 3. Using io module
 
 Finally, you can call the io.open() function, which is an alias for the built-in open() function.
