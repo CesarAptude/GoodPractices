@@ -512,6 +512,122 @@ Imports should always be specific. Importing * from a module is a very bad pract
     from math import ceil   
     x = ceil(x) # we know where ceil comes from
 
+## Default arguments
+
+Python has a different way of representing syntax and default values for function arguments. Default values indicate that the function argument will take that value if no argument value is passed during the function call. The default value is assigned by using the assignment(=) operator of the form keywordname=value.
+
+Let’s understand this through a function student. The function student contains 3-arguments out of which 2 arguments are assigned with default values. So, the function student accepts one required argument (firstname), and rest two arguments are optional. 
+
+
+    def student(firstname, lastname ='Mark', standard ='Fifth'):
+    
+        print(firstname, lastname, 'studies in', standard, 'Standard')
+
+We need to keep the following points in mind while calling functions: 
+
+In the case of passing the keyword arguments, the order of arguments is important.
+There should be only one value for one parameter.
+The passed keyword name should match with the actual keyword name.
+In the case of calling a function containing non-keyword arguments, the order is important.
+
+#### Example #1: Calling functions without keyword arguments
+
+
+    def student(firstname, lastname ='Mark', standard ='Fifth'):
+        print(firstname, lastname, 'studies in', standard, 'Standard')
+    
+    # 1 positional argument
+    student('John')
+    
+    # 3 positional arguments                        
+    student('John', 'Gates', 'Seventh')    
+    
+    # 2 positional arguments 
+    student('John', 'Gates')                 
+    student('John', 'Seventh')
+
+#### Output:
+
+    John Mark studies in Fifth Standard
+    John Gates studies in Seventh Standard
+    John Gates studies in Fifth Standard
+    John Seventh studies in Fifth Standard
+
+In the first call, there is only one required argument and the rest arguments use the default values. In the second call, lastname and standard arguments value is replaced from default value to new passing value. We can see the order of arguments is important from the 2nd, 3rd, and 4th calls of the function. 
+  
+#### Example #2: Calling functions with keyword arguments 
+
+    def student(firstname, lastname ='Mark', standard ='Fifth'):
+        print(firstname, lastname, 'studies in', standard, 'Standard')
+    
+    # 1 keyword argument
+    student(firstname ='John')    
+    
+    # 2 keyword arguments                
+    student(firstname ='John', standard ='Seventh') 
+    
+    # 2 keyword arguments
+    student(lastname ='Gates', firstname ='John')  
+
+#### Output: 
+ 
+
+    John Mark studies in Fifth Standard
+    John Mark studies in Seventh Standard
+    John Gates studies in Fifth Standard
+
+In the first call, there is only one required keyword argument. In the second call, one is a required argument and one is optional(standard), whose value gets replaced from default to a new passing value. In the third call, we can see that order in keyword argument is not important. 
+
+## Keyword arguments
+
+Keyword arguments (or named arguments) are values that, when passed into a function, are identifiable by specific parameter names. A keyword argument is preceded by a parameter and the assignment operator, = .
+
+Let’s take a look at what keyword arguments (also called “named arguments”) are.
+
+First let’s take this Python function:
+
+    from math import sqrt
+
+    def quadratic(a, b, c):
+        x1 = -b / (2*a)
+        x2 = sqrt(b**2 - 4*a*c) / (2*a)
+        return (x1 + x2), (x1 - x2)
+    
+When we call this function, we can pass each of our three arguments in two different ways.
+
+We can pass our arguments as positional arguments like this:
+
+    >>> quadratic(31, 93, 62)
+    (-1.0, -2.0)
+
+Or we can pass our arguments as keyword arguments like this:
+
+    >>> quadratic(a=31, b=93, c=62)
+    (-1.0, -2.0)
+
+The order of these arguments matters when they’re passed positionally:
+
+    >>> quadratic(31, 93, 62)
+    (-1.0, -2.0)
+    >>> quadratic(62, 93, 31)
+    (-0.5, -1.0)
+
+But it doesn’t matter when they’re passed by their name:
+
+    >>> quadratic(a=31, b=93, c=62)
+    (-1.0, -2.0)
+    >>> quadratic(c=62, b=93, a=31)
+    (-1.0, -2.0)
+
+When we use keyword/named arguments, it’s the name that matters, not the position:
+
+    >>> quadratic(a=31, b=93, c=62)
+    (-1.0, -2.0)
+    >>> quadratic(c=31, b=93, a=62)
+    (-0.5, -1.0)
+
+So unlike many other programming languages, Python knows the names of the arguments our function accepts.
+
 ## Over-engineering everything
 
 Essentially, a class is a way of grouping functions (as methods) and data (as properties) into a logical unit revolving around a certain kind of thing. If you don’t need that grouping, there’s no need to make a class.
